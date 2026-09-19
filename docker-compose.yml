@@ -1,0 +1,34 @@
+services:
+    app:
+        build:
+            context: .
+            dockerfile: Dockerfile
+        container_name: laravel-order-management
+        working_dir: /var/www
+        ports:
+            - "8000:8000"
+        volumes:
+            - .:/var/www
+        depends_on:
+            mysql:
+                condition: service_healthy
+
+    mysql:
+        image: mysql:8.0
+        container_name: laravel-order-management-mysql
+        restart: unless-stopped
+        environment:
+            MYSQL_DATABASE: laravel_order_management
+            MYSQL_ROOT_PASSWORD: root
+        ports:
+            - "3311:3306"
+        volumes:
+            - mysql_data:/var/lib/mysql
+        healthcheck:
+            test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-proot"]
+            interval: 5s
+            timeout: 5s
+            retries: 10
+
+volumes:
+    mysql_data:
